@@ -309,13 +309,11 @@ static long sr100_dev_ioctl(struct file* filp, unsigned int cmd,
     case SR100_SET_PWR:
       if (arg == PWR_ENABLE) {
         printk(KERN_ALERT " enable power request");
-//        gpio_set_value(sr100_dev->rtc_sync_gpio, 1);
-        gpio_set_value(sr100_dev->ce_gpio, 1);
+        gpio_set_value_cansleep(sr100_dev->ce_gpio, 1);
         msleep(10);
       } else if (arg == PWR_DISABLE) {
         printk(KERN_ALERT "disable power request");
-        gpio_set_value(sr100_dev->ce_gpio, 0);
-//        gpio_set_value(sr100_dev->rtc_sync_gpio, 0);
+        gpio_set_value_cansleep(sr100_dev->ce_gpio, 0);
         sr100_disable_irq(sr100_dev);
         msleep(10);
       } else if (arg == ABORT_READ_PENDING) {
@@ -432,7 +430,7 @@ static int sr100_dev_transceive(struct sr100_dev* sr100_dev, int op_mode, int co
         goto transcive_end;
       }
       retry_count = 0;
-      gpio_set_value(sr100_dev->spi_handshake_gpio, 1);
+      gpio_set_value_cansleep(sr100_dev->spi_handshake_gpio, 1);
       while (gpio_get_value(sr100_dev->irq_gpio)) {
         if (retry_count == 100) {
            break;
@@ -503,7 +501,7 @@ static int sr100_dev_transceive(struct sr100_dev* sr100_dev, int op_mode, int co
         }
       }while(gpio_get_value(sr100_dev->irq_gpio));
       ret = spi_transcive_success;
-      gpio_set_value(sr100_dev->spi_handshake_gpio, 0);
+      gpio_set_value_cansleep(sr100_dev->spi_handshake_gpio, 0);
     }
     break;
     default:
@@ -512,7 +510,7 @@ static int sr100_dev_transceive(struct sr100_dev* sr100_dev, int op_mode, int co
   }
 transcive_end:
   if(sr100_dev->mode == SR100_READ_MODE){
-    gpio_set_value(sr100_dev->spi_handshake_gpio, 0);
+    gpio_set_value_cansleep(sr100_dev->spi_handshake_gpio, 0);
   }
   mutex_unlock(&sr100_dev->sr100_access_lock);
   return ret;
