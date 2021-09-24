@@ -55,6 +55,8 @@
 #include <linux/notifier.h>
 #include <linux/backlight.h>
 #include <drm/drm_panel.h>
+#include <drm/dsi_display_fod.h>
+
 #include <linux/fb.h>
 #include <linux/proc_fs.h>
 #include <linux/uaccess.h>
@@ -176,6 +178,7 @@ void release_all_touches(struct fts_ts_info *info)
 	input_report_key(info->input_dev, BTN_INFO, 0);
 	mi_disp_set_fod_queue_work(0, true);
 	input_sync(info->input_dev);
+        dsi_display_primary_request_fod_hbm(0);
 #ifdef CONFIG_FTS_BOOST
 	lpm_disable_for_dev(false, EVENT_INPUT);
 #endif
@@ -3521,11 +3524,15 @@ static void fts_enter_pointer_event_handler(struct fts_ts_info *info,
 				input_report_key(info->input_dev, BTN_INFO, 1);
 				mi_disp_set_fod_queue_work(1, true);
 				logError(1,	"%s  %s :  FOD Press :%d, fod_id:%08x\n", tag, __func__, touchId, info->fod_id);
+				input_sync(info->input_dev);
+				dsi_display_primary_request_fod_hbm(1);
 			}
 		} else if (__test_and_clear_bit(touchId, &info->fod_id)) {
 			input_report_abs(info->input_dev, ABS_MT_WIDTH_MINOR, 0);
 			input_report_key(info->input_dev, BTN_INFO, 0);
 			mi_disp_set_fod_queue_work(0, true);
+			input_sync(info->input_dev);
+			dsi_display_primary_request_fod_hbm(0);
 			info->fod_x = 0;
 			info->fod_y = 0;
 			info->fod_coordinate_update = false;
@@ -3635,6 +3642,8 @@ static void fts_leave_pointer_event_handler(struct fts_ts_info *info,
 		input_report_abs(info->input_dev, ABS_MT_WIDTH_MINOR, 0);
 		input_report_key(info->input_dev, BTN_INFO, 0);
 		mi_disp_set_fod_queue_work(0, true);
+		input_sync(info->input_dev);
+		dsi_display_primary_request_fod_hbm(0);
 		info->fod_coordinate_update = false;
 		info->fod_x = 0;
 		info->fod_y = 0;
@@ -3651,6 +3660,8 @@ static void fts_leave_pointer_event_handler(struct fts_ts_info *info,
 		info->fod_pressed = false;
 		input_report_key(info->input_dev, BTN_INFO, 0);
 		mi_disp_set_fod_queue_work(0, true);
+		input_sync(info->input_dev);
+		dsi_display_primary_request_fod_hbm(0);
 
 #ifdef FTS_XIAOMI_TOUCHFEATURE
 		wake_up(&info->wait_queue);
@@ -4042,6 +4053,7 @@ static void fts_gesture_event_handler(struct fts_ts_info *info,
 					input_report_key(info->input_dev, BTN_INFO, 1);
 					mi_disp_set_fod_queue_work(1, true);
 					input_sync(info->input_dev);
+					dsi_display_primary_request_fod_hbm(1);
 					if (info->fod_id) {
 						fod_id = ffs(info->fod_id) - 1;
 						if (info->fod_id & ~(1 << fod_id))
