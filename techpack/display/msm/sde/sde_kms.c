@@ -53,6 +53,8 @@
 #include "sde_connector.h"
 #include "sde_vm.h"
 
+#include "mi_sde_connector.h"
+
 #include <linux/qcom_scm.h>
 #include "soc/qcom/secure_buffer.h"
 #include <linux/qtee_shmbridge.h>
@@ -1500,6 +1502,9 @@ static void sde_kms_complete_commit(struct msm_kms *kms,
 			pr_err("Connector Post kickoff failed rc=%d\n",
 					 rc);
 		}
+#if 0
+		mi_sde_connector_fod_notify(connector);
+#endif
 	}
 
 	vm_ops = sde_vm_get_ops(sde_kms);
