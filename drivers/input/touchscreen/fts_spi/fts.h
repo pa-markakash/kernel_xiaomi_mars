@@ -75,7 +75,7 @@
 #define LIMITS_ARRAY_NAME myArray2
 #endif
 
-#define FTS_XIAOMI_TOUCHFEATURE
+/*#define FTS_XIAOMI_TOUCHFEATURE*/
 #define FTS_FOD_AREA_REPORT
 
 /* #define DEBUG */
