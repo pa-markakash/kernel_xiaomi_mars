@@ -696,7 +696,7 @@ static int dsi_panel_update_cmd_reg51(struct dsi_panel *panel, enum dsi_cmd_set_
 	}
 
 	if (index == -1) {
-		DSI_ERR("cmd %d does not have an index for register 0x51\n", type);
+		DSI_ERR("cmd %d does not have an index for register 0x87\n", type);
 		return -EINVAL;
 	}
 
@@ -713,12 +713,12 @@ static int dsi_panel_update_cmd_reg51(struct dsi_panel *panel, enum dsi_cmd_set_
 		return -EINVAL;
 	}
 
-	if (tx_buf[0] != 0x51) {
-		DSI_ERR("cmd %d tx_buf[0] is not for register 0x51\n", type, tx_buf[0]);
+	if (tx_buf[0] != 0x87) {
+		DSI_ERR("cmd %d tx_buf[0] is not for register 0x87\n", type, tx_buf[0]);
 		return -EINVAL;
 	}
 
-	tx_buf[1] = (bl_lvl >> 8) & 0x07;
+	tx_buf[1] = (bl_lvl >> 8) & 0x0f;
 	tx_buf[2] = bl_lvl & 0xff;
 
 	return 0;
