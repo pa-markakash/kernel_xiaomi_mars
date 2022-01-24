@@ -742,7 +742,7 @@ static int dsi_panel_set_fod_hbm(struct dsi_panel *panel, bool status)
 		} else {
 			rc = dsi_panel_update_cmd_reg51(panel,
 							DSI_CMD_SET_MI_LOCAL_HBM_NORMAL_WHITE_1000NIT,
-							panel->bl_config.real_bl_level);
+							panel->bl_config.bl_level);
 			rc = dsi_panel_tx_cmd_set(panel, DSI_CMD_SET_MI_LOCAL_HBM_NORMAL_WHITE_1000NIT);
 			if (rc)
 				DSI_ERR("[%s] failed to send local hbm on cmd, rc=%d\n",

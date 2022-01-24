@@ -32,6 +32,8 @@
 #define SDE_ERROR_CONN(c, fmt, ...) SDE_ERROR("conn%d " fmt,\
 		(c) ? (c)->base.base.id : -1, ##__VA_ARGS__)
 
+static u32 priv_bl_level = 100;
+
 static const struct drm_prop_enum_list e_topology_name[] = {
 	{SDE_RM_TOPOLOGY_NONE,	"sde_none"},
 	{SDE_RM_TOPOLOGY_SINGLEPIPE,	"sde_singlepipe"},
@@ -866,6 +868,8 @@ void sde_connector_fod_pre_kickoff(struct drm_connector *connector)
 	if (!panel)
 		return;
 
+	priv_bl_level = panel->bl_config.bl_level;
+
 	if (dsi_panel_is_fod_hbm_applied(panel))
 		return;
 
@@ -873,8 +877,10 @@ void sde_connector_fod_pre_kickoff(struct drm_connector *connector)
 	if (rc)
 		return;
 
-	if (!dsi_panel_get_fod_hbm(panel))
-		dsi_panel_set_fod_ui(panel, 0);		
+	if (!dsi_panel_get_fod_hbm(panel)) {
+		dsi_panel_set_backlight(panel, priv_bl_level);
+		dsi_panel_set_fod_ui(panel, 0);
+	}
 }
 
 void sde_connector_fod_post_kickoff(struct drm_connector *connector)
@@ -903,6 +909,8 @@ void sde_connector_fod_post_kickoff(struct drm_connector *connector)
 	if (!panel)
 		return;
 
+	priv_bl_level = panel->bl_config.bl_level;
+
 	if (!dsi_panel_is_fod_hbm_applied(panel))
 		return;
 
@@ -910,7 +918,8 @@ void sde_connector_fod_post_kickoff(struct drm_connector *connector)
 	if (fod_hbm_enabled && fod_hbm_enabled != old_fod_hbm_enabled) {
 		sde_encoder_wait_for_event(c_conn->encoder, MSM_ENC_TX_COMPLETE);
 		sde_encoder_wait_for_event(c_conn->encoder, MSM_ENC_VBLANK);
-		dsi_panel_set_fod_ui(panel, 1);		
+		dsi_panel_set_backlight(panel, priv_bl_level);
+		dsi_panel_set_fod_ui(panel, 1);
 	}
 
 	old_fod_hbm_enabled = fod_hbm_enabled;
