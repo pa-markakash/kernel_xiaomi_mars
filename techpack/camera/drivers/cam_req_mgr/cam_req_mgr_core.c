@@ -1563,6 +1563,7 @@ static int __cam_req_mgr_check_sync_req_is_ready(
 * @return	 : true means the req is applied, others not applied
 *
 */
+/*
 static bool __cam_req_mgr_check_peer_req_is_applied(
 	struct cam_req_mgr_core_link *link,
 	int32_t idx)
@@ -1638,6 +1639,7 @@ end:
 
 	return applied;
 }
+*/
 
 static int __cam_req_mgr_check_multi_sync_link_ready(
 	struct cam_req_mgr_core_link *link,
@@ -1902,14 +1904,8 @@ static int __cam_req_mgr_process_req(struct cam_req_mgr_core_link *link,
 						(trigger == CAM_TRIGGER_POINT_SOF) ? "SOF" : "EOF");
 
 				if (!rc) {
-	                                rc = __cam_req_mgr_check_peer_req_is_applied(link,
-						in_q->last_applied_idx);
-
-					if (rc)
-						rc = __cam_req_mgr_check_link_is_ready(link,
-	                                                slot->idx, false);
-					else
-						rc = -EINVAL;
+					rc = __cam_req_mgr_check_link_is_ready(link,
+						slot->idx, false);
 				}
 			}
 		}
