@@ -64,7 +64,7 @@ if [ -f "$kernel" ] && [ -f "$dtb" ] && [ -f "$dtbo" ]; then
 	rm -rf AnyKernel3
 	echo -e "\nCompleted in $((SECONDS / 60)) minute(s) and $((SECONDS % 60)) second(s) !"
 	echo "Zip: $ZIPNAME"
-	curl --upload-file "$ZIPNAME" https://free.keep.sh
+	curl -# -F "file=@${ZIPNAME}" https://0x0.st
 else
 	echo -e "\nCompilation failed!"
 	exit 1
