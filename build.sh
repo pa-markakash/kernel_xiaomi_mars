@@ -3,28 +3,65 @@
 # Compile script for QuicksilveR kernel
 # Copyright (C) 2020-2021 Adithya R.
 
+# Setup getopt.
+long_opts="regen,clean,homedir:,tcdir:"
+getopt_cmd=$(getopt -o rch:t: --long "$long_opts" \
+            -n $(basename $0) -- "$@") || \
+            { echo -e "\nError: Getopt failed. Extra args\n"; exit 1;}
+
+eval set -- "$getopt_cmd"
+
+while true; do
+    case "$1" in
+        -r|--regen|r|regen) FLAG_REGEN_DEFCONFIG=y;;
+        -c|--clean|c|clean) FLAG_CLEAN_BUILD=y;;
+        -h|--homedir|h|homedir) HOME_DIR="$2"; shift;;
+        -t|--tcdir|t|tcdir) TC_DIR="$2"; shift;;
+        --) shift; break;;
+    esac
+    shift
+done
+
+# Setup HOME dir
+if [ $HOME_DIR ]; then
+    HOME_DIR=$HOME_DIR
+else
+    HOME_DIR=$HOME
+fi
+echo -e "HOME directory is at $HOME_DIR\n"
+
+# Setup Toolchain dir
+if [ $TC_DIR ]; then
+    TC_DIR="$HOME_DIR/$TC_DIR"
+else
+    TC_DIR="$HOME_DIR/tc"
+fi
+echo -e "Toolchain directory is at $TC_DIR\n"
+
 SECONDS=0 # builtin bash timer
 ZIPNAME="QuicksilveR-odin-$(date '+%Y%m%d-%H%M').zip"
-TC_DIR="$HOME/tc/clang-r416183b1"
-GCC_64_DIR="$HOME/tc/aarch64-linux-android-4.9"
-GCC_32_DIR="$HOME/tc/arm-linux-androideabi-4.9"
-AK3_DIR="$HOME/AnyKernel3"
+CLANG_DIR="$TC_DIR/clang-r416183b1"
+GCC_64_DIR="$TC_DIR/aarch64-linux-android-4.9"
+GCC_32_DIR="$TC_DIR/arm-linux-androideabi-4.9"
+AK3_DIR="$HOME_DIR/AnyKernel3"
 DEFCONFIG="odin_defconfig"
 
 MAKE_PARAMS="O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- LLVM=1 \
 	CROSS_COMPILE=$GCC_64_DIR/bin/aarch64-linux-android- \
 	CROSS_COMPILE_ARM32=$GCC_32_DIR/bin/arm-linux-androideabi-"
 
-export PATH="$TC_DIR/bin:$PATH"
+export PATH="$CLANG_DIR/bin:$PATH"
 
-if [[ $1 = "-r" || $1 = "--regen" ]]; then
+# Regenerate defconfig, if requested so
+if [ "$FLAG_REGEN_DEFCONFIG" = 'y' ]; then
 	make $MAKE_PARAMS $DEFCONFIG savedefconfig
 	cp out/defconfig arch/arm64/configs/$DEFCONFIG
 	echo -e "\nSuccessfully regenerated defconfig at $DEFCONFIG"
 	exit
 fi
 
-if [[ $1 = "-c" || $1 = "--clean" ]]; then
+# Prep for a clean build, if requested so
+if [ "$FLAG_CLEAN_BUILD" = 'y' ]; then
 	echo -e "\nCleaning output folder..."
 	rm -rf out
 fi
