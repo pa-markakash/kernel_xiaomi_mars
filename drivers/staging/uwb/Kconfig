@@ -70,3 +70,8 @@ config UWB_I1480U
          is safe to select any even if you do not have the hardware.
 
 endif # UWB
+
+config UWB_SR100
+        tristate "Nxp SPI driver for SR100 devices"
+        help
+          NXP SR100 UWB controller support.
