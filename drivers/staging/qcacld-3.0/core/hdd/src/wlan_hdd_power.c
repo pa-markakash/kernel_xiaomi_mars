@@ -2252,8 +2252,12 @@ static int __wlan_hdd_cfg80211_suspend_wlan(struct wiphy *wiphy,
 	}
 
 	rc = wlan_hdd_validate_context(hdd_ctx);
-	if (0 != rc)
-		return rc;
+	if (0 != rc) {
+		if (pld_is_low_power_mode(hdd_ctx->parent_dev))
+			hdd_debug("low power mode (Deep Sleep/Hibernate)");
+		else
+			return rc;
+	}
 
 	if (hdd_ctx->config->is_wow_disabled) {
 		hdd_info_rl("wow is disabled");
@@ -2963,8 +2967,8 @@ static int __wlan_hdd_cfg80211_get_txpower(struct wiphy *wiphy,
 	HDD_IS_RATE_LIMIT_REQ(is_rate_limited,
 			      hdd_ctx->config->nb_commands_interval);
 	if (hdd_ctx->driver_status != DRIVER_MODULES_ENABLED ||
-	    is_rate_limited) {
-		hdd_debug("Modules not enabled/rate limited, use cached stats");
+	    is_rate_limited || hdd_is_roaming_in_progress(hdd_ctx)) {
+		hdd_debug("Modules not enabled/rate limited/roaming, use cached stats");
 		/* Send cached data to upperlayer*/
 		*dbm = adapter->hdd_stats.class_a_stat.max_pwr;
 		return 0;
