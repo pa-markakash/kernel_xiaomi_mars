@@ -478,6 +478,7 @@
 		pmsg-size = <0x200000>;
 		console-size = <0x200000>;
 		mem-type = <2>;
+		ecc-size = <16>;
 	};
 
 	cnss_wlan_mem: cnss_wlan_region {
