@@ -40,7 +40,7 @@ echo -e "Toolchain directory is at $TC_DIR\n"
 
 SECONDS=0 # builtin bash timer
 ZIPNAME="QuicksilveR-odin-$(date '+%Y%m%d-%H%M').zip"
-CLANG_DIR="$TC_DIR/clang-r416183b1"
+CLANG_DIR="$TC_DIR/clang-r445002"
 GCC_64_DIR="$TC_DIR/aarch64-linux-android-4.9"
 GCC_32_DIR="$TC_DIR/arm-linux-androideabi-4.9"
 AK3_DIR="$HOME_DIR/AnyKernel3"
