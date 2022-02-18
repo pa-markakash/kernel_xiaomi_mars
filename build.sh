@@ -49,6 +49,10 @@ echo -e "Out directory is at $OUT_DIR\n"
 
 SECONDS=0 # builtin bash timer
 ZIPNAME="QuicksilveR-odin-$(date '+%Y%m%d-%H%M').zip"
+if test -z "$(git rev-parse --show-cdup 2>/dev/null)" &&
+   head=$(git rev-parse --verify HEAD 2>/dev/null); then
+        ZIPNAME="${ZIPNAME::-4}-$(echo $head | cut -c1-8).zip"
+fi
 CLANG_DIR="$TC_DIR/clang-r445002"
 GCC_64_DIR="$TC_DIR/aarch64-linux-android-4.9"
 GCC_32_DIR="$TC_DIR/arm-linux-androideabi-4.9"
