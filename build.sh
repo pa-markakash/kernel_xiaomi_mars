@@ -86,9 +86,9 @@ echo -e "\nStarting compilation...\n"
 make -j$(nproc --all) $MAKE_PARAMS || exit $?
 make -j$(nproc --all) $MAKE_PARAMS INSTALL_MOD_PATH=modules INSTALL_MOD_STRIP=1 modules_install
 
-kernel="out/arch/arm64/boot/Image"
-dtb="out/arch/arm64/boot/dts/vendor/qcom/lahaina.dtb"
-dtbo="out/arch/arm64/boot/dts/vendor/qcom/odin-sm8350-overlay.dtbo"
+kernel="$OUT_DIR/arch/arm64/boot/Image"
+dtb="$OUT_DIR/arch/arm64/boot/dts/vendor/qcom/lahaina.dtb"
+dtbo="$OUT_DIR/arch/arm64/boot/dts/vendor/qcom/odin-sm8350-overlay.dtbo"
 
 if [ -f "$kernel" ] && [ -f "$dtb" ] && [ -f "$dtbo" ]; then
 	echo -e "\nKernel compiled succesfully! Zipping up...\n"
@@ -101,12 +101,12 @@ if [ -f "$kernel" ] && [ -f "$dtb" ] && [ -f "$dtbo" ]; then
 	cp $kernel AnyKernel3
 	cp $dtb AnyKernel3/dtb
 	python2 scripts/dtc/libfdt/mkdtboimg.py create AnyKernel3/dtbo.img --page_size=4096 $dtbo
-	cp $(find out/modules/lib/modules/5.4* -name '*.ko') AnyKernel3/modules/vendor/lib/modules/
-	cp out/modules/lib/modules/5.4*/modules.{alias,dep,softdep} AnyKernel3/modules/vendor/lib/modules
-	cp out/modules/lib/modules/5.4*/modules.order AnyKernel3/modules/vendor/lib/modules/modules.load
+	cp $(find $OUT_DIR/modules/lib/modules/5.4* -name '*.ko') AnyKernel3/modules/vendor/lib/modules/
+	cp $OUT_DIR/modules/lib/modules/5.4*/modules.{alias,dep,softdep} AnyKernel3/modules/vendor/lib/modules
+	cp $OUT_DIR/modules/lib/modules/5.4*/modules.order AnyKernel3/modules/vendor/lib/modules/modules.load
 	sed -i 's/\(kernel\/[^: ]*\/\)\([^: ]*\.ko\)/\/vendor\/lib\/modules\/\2/g' AnyKernel3/modules/vendor/lib/modules/modules.dep
 	sed -i 's/.*\///g' AnyKernel3/modules/vendor/lib/modules/modules.load
-	rm -rf out/arch/arm64/boot out/modules
+	rm -rf $OUT_DIR/arch/arm64/boot $OUT_DIR/modules
 	cd AnyKernel3
 	git checkout odin &> /dev/null
 	zip -r9 "../$ZIPNAME" * -x .git README.md *placeholder
