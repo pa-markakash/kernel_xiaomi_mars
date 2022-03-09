@@ -1,6 +1,0 @@
-#include "sdxlemur-mtp.dtsi"
-
-&soc {
-
-};
-
