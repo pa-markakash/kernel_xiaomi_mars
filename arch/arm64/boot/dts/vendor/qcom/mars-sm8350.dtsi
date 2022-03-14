@@ -9,12 +9,6 @@ And public attribution of xiaomi platforms(like venus and so and)
 #include "camera/mars-sm8350-camera-sensor.dtsi"
 
 &soc {
-	xiaomi_touch {
-		compatible = "xiaomi-touch";
-		status = "ok";
-		touch,name = "xiaomi-touch";
-	};
-
 	fingerprint_goodix {
 		compatible = "goodix,fingerprint";
 		l11c_vdd-supply = <&L11C>;
