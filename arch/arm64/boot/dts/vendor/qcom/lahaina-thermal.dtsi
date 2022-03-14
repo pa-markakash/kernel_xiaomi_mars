@@ -1230,7 +1230,7 @@
 		thermal-sensors = <&tsens1 1>;
 		trips {
 			gpuss0_config: active-config0 {
-				temperature = <95000>;
+				temperature = <78000>;
 				hysteresis = <0>;
 				type = "passive";
 			};
@@ -1252,7 +1252,7 @@
 		thermal-sensors = <&tsens1 2>;
 		trips {
 			gpuss1_config: active-config0 {
-				temperature = <95000>;
+				temperature = <78000>;
 				hysteresis = <0>;
 				type = "passive";
 			};
