@@ -52,6 +52,14 @@
 			debounce-interval = <15>;
 			linux,can-disable;
 		};
+                hall_key {
+                        label = "hall_key";
+                        gpios = <&tlmm 80 GPIO_ACTIVE_LOW>;
+                        linux,input-type = <5>;
+                        linux,code = <0>;
+                        gpio-key,wakeup;
+                        debounce-interval = <15>;
+                };
 	};
 
 	extcon_usb1: extcon_usb1 {
@@ -220,6 +228,10 @@
 
 &wil6210 {
 	status = "ok";
+};
+
+&mdss_mdp {
+	qcom,sde-wakeup-with-touch;
 };
 
 &dsi_k2_38_08_0a_dsc_cmd {

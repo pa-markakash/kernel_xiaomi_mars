@@ -47,7 +47,7 @@
 	config {
 		pins = "gpio107","gpio108";
 		bias-pull-up; /* PULL UP*/
-		drive-strength = <4>; /* 4 MA */
+		drive-strength = <12>; /* 4 MA */
 	};
 };
 
@@ -55,7 +55,7 @@
 	config {
 		pins = "gpio109","gpio110";
 		bias-pull-up; /* PULL UP*/
-		drive-strength = <4>; /* 4 MA */
+		drive-strength = <12>; /* 4 MA */
 	};
 };
 
@@ -63,7 +63,7 @@
 	config {
 		pins = "gpio111","gpio112";
 		bias-pull-up; /* PULL UP*/
-		drive-strength = <4>; /* 4 MA */
+		drive-strength = <12>; /* 4 MA */
 	};
 };
 
@@ -71,7 +71,7 @@
 	config {
 		pins = "gpio113","gpio114";
 		bias-pull-up; /* PULL UP*/
-		drive-strength = <4>; /* 4 MA */
+		drive-strength = <12>; /* 4 MA */
 	};
 };
 

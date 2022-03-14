@@ -599,14 +599,15 @@
 
 	mi,max-brightness-clone = <8191>;
 
+	mi,thermal-dimming-flag;
 	mi,local-hbm-enabled;
 	mi,local-hbm-on-1000nit-51-index = <3>;
 	mi,local-hbm-off-to-hbm-51-index = <2>;
 	mi,doze-hbm-dbv-level = <196>;
 	mi,doze-lbm-dbv-level = <22>;
 
-	mi,fod-low-brightness-clone-threshold = <35>;
-	mi,fod-low-brightness-lux-threshold = <1>;
+	mi,fod-low-brightness-clone-threshold = <40>;
+	mi,fod-low-brightness-lux-threshold = <3>;
 	mi,mdss-dsi-panel-hbm-brightness = <1>;
 
 	qcom,mdss-dsi-display-timings {
@@ -1185,12 +1186,6 @@
 					39 01 00 00 00 00 03 F0 A5 A5
 			];
 			mi,mdss-dsi-spr-2d-rendering-command-state = "dsi_lp_mode";
-
-			mi,mdss-dsi-color-invert-on-command = [05 01 00 00 00 00 01 21];
-			mi,mdss-dsi-color-invert-on-command-state = "dsi_lp_mode";
-
-			mi,mdss-dsi-color-invert-off-command = [05 01 00 00 00 00 01 20];
-			mi,mdss-dsi-color-invert-off-command-state = "dsi_lp_mode";
 		};
 
 		timing@1{
@@ -1768,12 +1763,6 @@
 					39 01 00 00 00 00 03 F0 A5 A5
 			];
 			mi,mdss-dsi-spr-2d-rendering-command-state = "dsi_lp_mode";
-
-			mi,mdss-dsi-color-invert-on-command = [05 01 00 00 00 00 01 21];
-			mi,mdss-dsi-color-invert-on-command-state = "dsi_lp_mode";
-
-			mi,mdss-dsi-color-invert-off-command = [05 01 00 00 00 00 01 20];
-			mi,mdss-dsi-color-invert-off-command-state = "dsi_lp_mode";
 		};
 
 		timing@2{
@@ -2383,12 +2372,6 @@
 					39 01 00 00 00 00 03 F0 A5 A5
 			];
 			mi,mdss-dsi-spr-2d-rendering-command-state = "dsi_lp_mode";
-
-			mi,mdss-dsi-color-invert-on-command = [05 01 00 00 00 00 01 21];
-			mi,mdss-dsi-color-invert-on-command-state = "dsi_lp_mode";
-
-			mi,mdss-dsi-color-invert-off-command = [05 01 00 00 00 00 01 20];
-			mi,mdss-dsi-color-invert-off-command-state = "dsi_lp_mode";
 		};
 	};
 };

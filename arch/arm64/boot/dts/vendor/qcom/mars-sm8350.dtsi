@@ -9,16 +9,6 @@ And public attribution of xiaomi platforms(like venus and so and)
 #include "camera/mars-sm8350-camera-sensor.dtsi"
 
 &soc {
-	gpio_keys {
-		hall_key {
-			label = "hall_key";
-			gpios = <&tlmm 80 GPIO_ACTIVE_LOW>;
-			linux,input-type = <5>;
-			linux,code = <0>;
-			gpio-key,wakeup;
-			debounce-interval = <15>;
-		};
-	};
 	xiaomi_touch {
 		compatible = "xiaomi-touch";
 		status = "ok";
@@ -398,23 +388,6 @@ And public attribution of xiaomi platforms(like venus and so and)
 	vddio-supply = <&display_prim_vddi>;
 	avdd-supply = <&L12C>;
 	vddd-supply = <&display_prim_vddd>;
-};
-
-&sde_dp {
-	status = "disabled";
-};
-
-&qcom_msmhdcp {
-	status = "disabled";
-};
-
-&sde_dsi1 {
-	status = "disabled";
-};
-
-&mdss_mdp {
-	connectors = <&smmu_sde_unsec &smmu_sde_sec &sde_wb &sde_dsi
-		&sde_rscc>;
 };
 
 &pm8350b_gpios {
