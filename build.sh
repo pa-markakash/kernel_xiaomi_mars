@@ -1,41 +1,121 @@
-DATE=$(date +"%Y%m%d")
-VERSION=$(git rev-parse --short HEAD)
-KERNEL_NAME=Evasi0nKernel-mars-"$DATE"
+#!/bin/bash
+#
+# Compile script for QuicksilveR kernel
+# Copyright (C) 2020-2021 Adithya R.
 
-export KERNEL_PATH=$PWD
-export ANYKERNEL_PATH=~/Anykernel3
-export CLANG_PATH=~/proton-clang
-export PATH=${CLANG_PATH}/bin:${PATH}
-export CLANG_TRIPLE=aarch64-linux-gnu-
-export ARCH=arm64
-export SUBARCH=arm64
+# Setup getopt.
+long_opts="regen,clean,homedir:,tcdir:outdir:"
+getopt_cmd=$(getopt -o rch:t:o: --long "$long_opts" \
+            -n $(basename $0) -- "$@") || \
+            { echo -e "\nError: Getopt failed. Extra args\n"; exit 1;}
 
-echo "===================Setup Environment==================="
-git clone --depth=1 https://github.com/kdrag0n/proton-clang $CLANG_PATH
-git clone https://github.com/osm0sis/AnyKernel3 $ANYKERNEL_PATH
-sh -c "$(curl -sSL https://github.com/akhilnarang/scripts/raw/master/setup/android_build_env.sh/)"
+eval set -- "$getopt_cmd"
 
-echo "=========================Clean========================="
-rm -rf $KERNEL_PATH/out/ *.zip
-make mrproper && git reset --hard HEAD
+while true; do
+    case "$1" in
+        -r|--regen|r|regen) FLAG_REGEN_DEFCONFIG=y;;
+        -c|--clean|c|clean) FLAG_CLEAN_BUILD=y;;
+        -h|--homedir|h|homedir) HOME_DIR="$2"; shift;;
+        -t|--tcdir|t|tcdir) TC_DIR="$2"; shift;;
+        -o|--outdir|o|outdir) OUT_DIR="$2"; shift;;
+        --) shift; break;;
+    esac
+    shift
+done
 
-echo "=========================Build========================="
-make -j$(nproc) O=out CC="ccache clang" CXX="ccache clang++" CROSS_COMPILE=$CLANG_PATH/bin/aarch64-linux-gnu- CROSS_COMPILE_ARM32=$CLANG_PATH/bin/arm-linux-gnueabi- LD=ld.lld vendor/mars_defconfig
-make -j$(nproc) O=out CC="ccache clang" CXX="ccache clang++" CROSS_COMPILE=$CLANG_PATH/bin/aarch64-linux-gnu- CROSS_COMPILE_ARM32=$CLANG_PATH/bin/arm-linux-gnueabi- LD=ld.lld 2>&1 | tee out/kernel.log
+# Setup HOME dir
+if [ $HOME_DIR ]; then
+    HOME_DIR=$HOME_DIR
+else
+    HOME_DIR=$HOME
+fi
+echo -e "HOME directory is at $HOME_DIR"
 
-if [ ! -e $KERNEL_PATH/out/arch/arm64/boot/Image ]; then
-    echo "=======================FAILED!!!======================="
-    exit -1>/dev/null 2>&1
+# Setup Toolchain dir
+if [ $TC_DIR ]; then
+    TC_DIR="$HOME_DIR/$TC_DIR"
+else
+    TC_DIR="$HOME_DIR/tc"
+fi
+echo -e "Toolchain directory is at $TC_DIR"
+
+# Setup OUT dir
+if [ $OUT_DIR ]; then
+    OUT_DIR=$OUT_DIR
+else
+    OUT_DIR=out
+fi
+echo -e "Out directory is at $OUT_DIR\n"
+
+SECONDS=0 # builtin bash timer
+ZIPNAME="Markakash-star-$(date '+%Y%m%d-%H%M').zip"
+if test -z "$(git rev-parse --show-cdup 2>/dev/null)" &&
+   head=$(git rev-parse --verify HEAD 2>/dev/null); then
+        ZIPNAME="${ZIPNAME::-4}-$(echo $head | cut -c1-8).zip"
+fi
+CLANG_DIR="$TC_DIR/clang-r445002"
+GCC_64_DIR="$TC_DIR/aarch64-linux-android-4.9"
+GCC_32_DIR="$TC_DIR/arm-linux-androideabi-4.9"
+AK3_DIR="$HOME_DIR/AnyKernel3"
+DEFCONFIG="vendor/star-qgki_defconfig "
+
+MAKE_PARAMS="O=$OUT_DIR ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- LLVM=1 \
+	CROSS_COMPILE=$GCC_64_DIR/bin/aarch64-linux-android- \
+	CROSS_COMPILE_ARM32=$GCC_32_DIR/bin/arm-linux-androideabi-"
+
+export PATH="$CLANG_DIR/bin:$PATH"
+
+# Regenerate defconfig, if requested so
+if [ "$FLAG_REGEN_DEFCONFIG" = 'y' ]; then
+	make $MAKE_PARAMS $DEFCONFIG savedefconfig
+	cp $OUT_DIR/defconfig arch/arm64/configs/$DEFCONFIG
+	echo -e "\nSuccessfully regenerated defconfig at $DEFCONFIG"
+	exit
 fi
 
-echo "=========================Patch========================="
-rm -r $ANYKERNEL_PATH/modules $ANYKERNEL_PATH/patch $ANYKERNEL_PATH/ramdisk
-cp $KERNEL_PATH/anykernel.sh $ANYKERNEL_PATH/
-cp $KERNEL_PATH/out/arch/arm64/boot/Image $ANYKERNEL_PATH/
-cd $ANYKERNEL_PATH
-zip -r $KERNEL_NAME *
-mv $KERNEL_NAME.zip $KERNEL_PATH/out/
-cd $KERNEL_PATH
-#rm -rf $CLANG_PATH
-rm -rf $ANYKERNEL_PATH
-echo $KERNEL_NAME.zip
+# Prep for a clean build, if requested so
+if [ "$FLAG_CLEAN_BUILD" = 'y' ]; then
+	echo -e "\nCleaning output folder..."
+	rm -rf $OUT_DIR
+fi
+
+mkdir -p $OUT_DIR
+make $MAKE_PARAMS $DEFCONFIG
+
+echo -e "\nStarting compilation...\n"
+make -j$(nproc --all) $MAKE_PARAMS || exit $?
+make -j$(nproc --all) $MAKE_PARAMS INSTALL_MOD_PATH=modules INSTALL_MOD_STRIP=1 modules_install
+
+kernel="$OUT_DIR/arch/arm64/boot/Image"
+dtb="$OUT_DIR/arch/arm64/boot/dts/vendor/qcom/lahaina.dtb"
+dtbo="$OUT_DIR/arch/arm64/boot/dts/vendor/qcom/star-sm8350-overlay.dtbo"
+
+if [ -f "$kernel" ] && [ -f "$dtb" ] && [ -f "$dtbo" ]; then
+	echo -e "\nKernel compiled succesfully! Zipping up...\n"
+	if [ -d "$AK3_DIR" ]; then
+		cp -r $AK3_DIR AnyKernel3
+	elif ! git clone -q https://github.com/ghostrider-reborn/AnyKernel3; then
+		echo -e "\nAnyKernel3 repo not found locally and couldn't clone from GitHub! Aborting..."
+		exit 1
+	fi
+	cp $kernel AnyKernel3
+	cp $dtb AnyKernel3/dtb
+	python2 scripts/dtc/libfdt/mkdtboimg.py create AnyKernel3/dtbo.img --page_size=4096 $dtbo
+	cp $(find $OUT_DIR/modules/lib/modules/5.4* -name '*.ko') AnyKernel3/modules/vendor/lib/modules/
+	cp $OUT_DIR/modules/lib/modules/5.4*/modules.{alias,dep,softdep} AnyKernel3/modules/vendor/lib/modules
+	cp $OUT_DIR/modules/lib/modules/5.4*/modules.order AnyKernel3/modules/vendor/lib/modules/modules.load
+	sed -i 's/\(kernel\/[^: ]*\/\)\([^: ]*\.ko\)/\/vendor\/lib\/modules\/\2/g' AnyKernel3/modules/vendor/lib/modules/modules.dep
+	sed -i 's/.*\///g' AnyKernel3/modules/vendor/lib/modules/modules.load
+#	rm -rf $OUT_DIR/arch/arm64/boot $OUT_DIR/modules
+	cd AnyKernel3
+	git checkout odin &> /dev/null
+	zip -r9 "../$ZIPNAME" * -x .git README.md *placeholder
+	cd ..
+	rm -rf AnyKernel3
+	echo -e "\nCompleted in $((SECONDS / 60)) minute(s) and $((SECONDS % 60)) second(s) !"
+	echo "Zip: $ZIPNAME"
+	curl -# -F "file=@${ZIPNAME}" https://0x0.st
+else
+	echo -e "\nCompilation failed!"
+	exit 1
+fi
