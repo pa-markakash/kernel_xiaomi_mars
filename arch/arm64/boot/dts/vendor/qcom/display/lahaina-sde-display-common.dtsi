@@ -29,6 +29,10 @@
 #include <dt-bindings/clock/mdss-5nm-pll-clk.h>
 #include "dsi-panel-sim-vdc-vid.dtsi"
 #include "dsi-panel-sim-vdc-cmd.dtsi"
+#include "dsi-panel-k2-38-08-0a-dsc-cmd.dtsi"
+#include "dsi-panel-k2-38-08-0a-mp-dsc-cmd.dtsi"
+#include "dsi-panel-k2b-38-08-0a-dsc-cmd.dtsi"
+#include "dsi-panel-k11-38-08-0a-dsc-cmd.dtsi"
 #include "dsi-panel-prim-sim-video.dtsi"
 #include "dsi-panel-sec-sim-video.dtsi"
 #include "dsi-panel-k8-42-02-0a-dsc-cmd.dtsi"
